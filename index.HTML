@@ -3,220 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Misturas Químicas de Limpeza</title>
-    <style>
-        /* --- ESTILIZAÇÃO CSS --- */
-        :root {
-            --safe-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --neutral-color: #34495e;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f6fa;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-        }
-
-        h1 {
-            color: var(--neutral-color);
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-
-        p.description {
-            color: #7f8c8d;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .select-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .select-box {
-            flex: 1;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #2c3e50;
-            font-size: 14px;
-        }
-
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #dcdde1;
-            border-radius: 8px;
-            background-color: #fff;
-            font-size: 16px;
-            color: #2c3e50;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        select:focus {
-            border-color: #3498db;
-        }
-
-        /* Painel de Resultado */
-        .result-box {
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-            display: none; /* Escondido até o usuário selecionar os produtos */
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .result-box.safe {
-            display: block;
-            background-color: #e8f8f5;
-            border: 2px solid var(--safe-color);
-            color: #117a65;
-        }
-
-        .result-box.danger {
-            display: block;
-            background-color: #fcedec;
-            border: 2px solid var(--danger-color);
-            color: #943126;
-        }
-
-        .result-status {
-            font-size: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-
-        .result-text {
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    <title>Simulador de Segurança: Misturas de Limpeza</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
-        <h1>Simulador de Segurança Química</h1>
-        <p class="description">Selecione dois produtos de limpeza para simular se a mistura entre eles é segura.</p>
+        <h1>Simulador de Misturas Químicas</h1>
+        <p class="subtitulo">Descubra se a combinação de produtos de limpeza doméstica é segura ou perigosa.</p>
 
-        <div class="select-container">
-            <div class="select-box">
-                <label for="produto1">Produto A</label>
-                <select id="produto1" onchange="verificarMistura()">
-                    <option value="">Selecione...</option>
+        <div class="painel-selecao">
+            <div class="campo">
+                <label for="produtoA">1º Produto:</label>
+                <select id="produtoA" onchange="calcularMistura()">
+                    <option value="">Selecione um produto...</option>
                     <option value="agua_sanitaria">Água Sanitária (Cloro)</option>
-                    <option value="vinagre">Vinagre (Ácido Acético)</option>
+                    <option value="vinagre">Vinagre (Ácido)</option>
                     <option value="amonia">Amoníaco (Amônia)</option>
-                    <option value="alcool">Álcool em Gel/Líquido</option>
+                    <option value="alcool">Álcool Etílico</option>
                     <option value="detergente">Detergente Neutro</option>
                 </select>
             </div>
 
-            <div class="select-box">
-                <label for="produto2">Produto B</label>
-                <select id="produto2" onchange="verificarMistura()">
-                    <option value="">Selecione...</option>
+            <div class="campo">
+                <label for="produtoB">2º Produto:</label>
+                <select id="produtoB" onchange="calcularMistura()">
+                    <option value="">Selecione um produto...</option>
                     <option value="agua_sanitaria">Água Sanitária (Cloro)</option>
-                    <option value="vinagre">Vinagre (Ácido Acético)</option>
+                    <option value="vinagre">Vinagre (Ácido)</option>
                     <option value="amonia">Amoníaco (Amônia)</option>
-                    <option value="alcool">Álcool em Gel/Líquido</option>
+                    <option value="alcool">Álcool Etílico</option>
                     <option value="detergente">Detergente Neutro</option>
                 </select>
             </div>
         </div>
 
-        <div id="resultado" class="result-box">
-            <div id="status" class="result-status"></div>
-            <div id="mensagem" class="result-text"></div>
+        <div id="quadroResultado" class="resultado-box">
+            <div id="statusTitulo" class="status-titulo"></div>
+            <div id="statusDescricao" class="status-descricao"></div>
         </div>
     </div>
 
     <script>
-        function verificarMistura() {
-            const p1 = document.getElementById('produto1').value;
-            const p2 = document.getElementById('produto2').value;
-            const resultadoDiv = document.getElementById('resultado');
-            const statusDiv = document.getElementById('status');
-            const mensagemDiv = document.getElementById('mensagem');
+        function calcularMistura() {
+            const pA = document.getElementById('produtoA').value;
+            const pB = document.getElementById('produtoB').value;
+            const quadro = document.getElementById('quadroResultado');
+            const titulo = document.getElementById('statusTitulo');
+            const descricao = document.getElementById('statusDescricao');
 
-            // Se um dos produtos não for selecionado, esconde o resultado
-            if (!p1 || !p2) {
-                resultadoDiv.className = "result-box";
+            if (!pA || !pB) {
+                quadro.className = "resultado-box";
                 return;
             }
 
-            // Se o usuário selecionar o mesmo produto
-            if (p1 === p2) {
-                exibirResultado("safe", "Mistura Segura", "Misturar o mesmo tipo de produto não gera novas reações químicas perigosas, mas geralmente é desnecessário.");
+            if (pA === pB) {
+                mostrarResposta("seguro", "✓ Mistura sem reação", "Misturar o mesmo produto não gera novos gases ou perigos químicos.");
                 return;
             }
 
-            // Criar uma combinação padronizada (em ordem alfabética para facilitar a checagem)
-            const combinacao = [p1, p2].sort().join('_+_');
+            const combinacao = [pA, pB].sort().join('_+_');
 
-            // Validação das combinações perigosas reais
             switch(combinacao) {
                 case "agua_sanitaria_+_vinagre":
-                    exibirResultado("danger", "PERIGO EXTREMO!", "A mistura de Água Sanitária com Vinagre (ou qualquer ácido) produz o gás cloro, que é altamente tóxico e causa graves queimaduras nas vias respiratórias.");
+                    mostrarResposta("perigo", "✕ PERIGO EXTREMO: Gás Cloro", "A mistura de cloro com ácidos (como o vinagre) libera o Gás Cloro. Ele é altamente tóxico e causa queimaduras graves nas vias respiratórias.");
                     break;
                 case "agua_sanitaria_+_amonia":
-                    exibirResultado("danger", "PERIGO EXTREMO!", "A mistura de Água Sanitária com Amoníaco produz cloraminas, gases tóxicos que causam falta de ar, dor no peito e irritação extrema nos olhos.");
+                    mostrarResposta("perigo", "✕ PERIGO EXTREMO: Cloraminas", "Gera gases tóxicos chamados cloraminas. Podem causar graves danos pulmonares e falta de ar.");
                     break;
                 case "agua_sanitaria_+_alcool":
-                    exibirResultado("danger", "PERIGO!", "A mistura de Cloro com Álcool pode produzir clorofórmio, uma substância que pode causar tontura, desmaio e é prejudicial à saúde.");
+                    mostrarResposta("perigo", "✕ PERIGO: Clorofórmio", "Pode produzir clorofórmio, substância que ataca o sistema nervoso central, causando tonturas e desmaios.");
                     break;
                 case "alcool_+_vinagre":
-                    exibirResultado("safe", "Seguro com moderação", "Não gera gases altamente tóxicos, mas pode anular certas propriedades de limpeza dependendo da proporção.");
+                    mostrarResposta("seguro", "✓ Mistura Segura", "Não gera gases tóxicos, mas um produto pode anular a eficiência de limpeza do outro.");
                     break;
-                case "detergente_+_vinagre":
                 case "agua_sanitaria_+_detergente":
+                case "detergente_+_vinagre":
                 case "alcool_+_detergente":
                 case "amonia_+_detergente":
-                    exibirResultado("safe", "Mistura Segura", "Geralmente segura. O detergente neutro é formulado para ser estável, mas lembre-se de sempre ventilar o ambiente ao limpar.");
+                    mostrarResposta("seguro", "✓ Mistura Segura", "O detergente neutro é quimicamente estável. Lembre-se de manter o ambiente bem ventilado.");
                     break;
                 default:
-                    exibirResultado("safe", "Mistura Segura", "Não há registros de reações perigosas graves conhecidas para esta combinação específica, mas use sempre com cautela.");
+                    mostrarResposta("seguro", "✓ Sem riscos graves conhecidos", "Esta combinação específica não possui relatos de reações perigosas.");
             }
         }
 
-        function exibirResultado(tipo, status, mensagem) {
-            const resultadoDiv = document.getElementById('resultado');
-            const statusDiv = document.getElementById('status');
-            const mensagemDiv = document.getElementById('mensagem');
+        function mostrarResposta(tipo, textoTitulo, textoDescricao) {
+            const quadro = document.getElementById('quadroResultado');
+            const titulo = document.getElementById('statusTitulo');
+            const descricao = document.getElementById('statusDescricao');
 
-            resultadoDiv.className = `result-box ${tipo}`;
-            statusDiv.innerText = status;
-            mensagemDiv.innerText = mensagem;
+            quadro.className = `resultado-box ${tipo}`;
+            titulo.innerText = textoTitulo;
+            descricao.innerText = textoDescricao;
         }
     </script>
 </body>
