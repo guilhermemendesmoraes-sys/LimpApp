@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LimpApp - Simulador de Segurança Química</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-wrapper">
+                <span class="logo-shield">🛡️</span>
+                <span class="logo-hazard">⚠️</span>
+            </div>
+            <h1>LimpApp <span class="gradient-text">PC</span></h1>
+            <p class="subtitulo">Plataforma inteligente de simulação de compatibilidade química e mitigação de riscos residenciais.</p>
+        </header>
+
+        <div class="dashboard-grid">
+            
+            <div class="coluna-principal">
+                <section class="painel-selecao nao-imprimir">
+                    <div class="campo-selecao">
+                        <label for="produtoA">1º Componente Alvo</label>
+                        <select id="produtoA" onchange="calcularMistura()">
+                            <option value="">Selecione um produto...</option>
+                            <option value="agua_sanitaria">Água Sanitária (Cloro)</option>
+                            <option value="vinagre">Vinagre (Ácido Acético)</option>
+                            <option value="amonia">Amoníaco (Amônia)</option>
+                            <option value="alcool">Álcool Etílico</option>
+                            <option value="detergente">Detergente Neutro</option>
+                            <option value="agua_oxigenada">Água Oxigenada</option>
+                            <option value="bicarbonato">Bicarbonato de Sódio</option>
+                            <option value="desinfetante_pinho">Desinfetante de Pinho</option>
+                            <option value="soda_caustica">Limpador de Forno (Soda Cáustica)</option>
+                            <option value="sabao_po">Sabão em Pó / Detergente Pó</option>
+                            <option value="removedor_ferrugem">Removedor de Ferrugem</option>
+                            <option value="acetona">Acetona (Solvente)</option>
+                            <option value="desengordurante">Desengordurante de Cozinha</option>
+                            <option value="limpador_aluminio">Limpador de Alumínio</option>
+                            <option value="querosene">Querosene / Aguarrás</option>
+                            <option value="alcool_isopropilico">Álcool Isopropílico</option>
+                        </select>
+                    </div>
+
+                    <div class="divisor-vs">VS</div>
+
+                    <div class="campo-selecao">
+                        <label for="produtoB">2º Componente Alvo</label>
+                        <select id="produtoB" onchange="calcularMistura()">
+                            <option value="">Selecione um produto...</option>
+                            <option value="agua_sanitaria">Água Sanitária (Cloro)</option>
+                            <option value="vinagre">Vinagre (Ácido Acético)</option>
+                            <option value="amonia">Amoníaco (Amônia)</option>
+                            <option value="alcool">Álcool Etílico</option>
+                            <option value="detergente">Detergente Neutro</option>
+                            <option value="agua_oxigenada">Água Oxigenada</option>
+                            <option value="bicarbonato">Bicarbonato de Sódio</option>
+                            <option value="desinfetante_pinho">Desinfetante de Pinho</option>
+                            <option value="soda_caustica">Limpador de Forno (Soda Cáustica)</option>
+                            <option value="sabao_po">Sabão em Pó / Detergente Pó</option>
+                            <option value="removedor_ferrugem">Removedor de Ferrugem</option>
+                            <option value="acetona">Acetona (Solvente)</option>
+                            <option value="desengordurante">Desengordurante de Cozinha</option>
+                            <option value="limpador_aluminio">Limpador de Alumínio</option>
+                            <option value="querosene">Querosene / Aguarrás</option>
+                            <option value="alcool_isopropilico">Álcool Isopropílico</option>
+                        </select>
+                    </div>
+                </section>
+
+                <section id="quadroResultado" class="resultado-card estado-espera">
+                    
+                    <div class="barra-risco-container">
+                        <div id="barraRisco" class="barra-risco-preenchimento"></div>
+                    </div>
+
+                    <div class="resultado-header">
+                        <span id="resultadoIcone" class="resultado-icone">🔬</span>
+                        <div class="titulo-wrapper">
+                            <h2 id="statusTitulo" class="status-titulo">Aguardando Parâmetros</h2>
+                        </div>
+                        <div class="botoes-acoes nao-imprimir">
+                            <button id="btnOuvir" class="btn-acao" onclick="lerAnalise()" title="Ouvir análise" style="display: none;">🔊 Ouvir</button>
+                            <button id="btnCopiar" class="btn-acao" onclick="copiarResumo()" title="Copiar Laudo" style="display: none;">📋 Copiar</button>
+                            <button id="btnRelatorio" class="btn-acao btn-print" onclick="window.print()" title="Imprimir Laudo" style="display: none;">📄 Imprimir</button>
+                            <button id="btnLimpar" class="btn-acao btn-danger" onclick="resetarSimulador()" title="Limpar seleção">🔄 Limpar</button>
+                        </div>
+                    </div>
+
+                    <div id="dadosQuimicos" class="dados-quimicos" style="display: none;">
+                        <div class="dado-item"><span class="dado-label">Reagente A:</span> <span id="nomeCientificoA"></span> <span id="classeA" class="badge-quimico"></span> <span id="phA" class="badge-ph"></span></div>
+                        <div class="dado-item"><span class="dado-label">Reagente B:</span> <span id="nomeCientificoB"></span> <span id="classeB" class="badge-quimico"></span> <span id="phB" class="badge-ph"></span></div>
+                    </div>
+
+                    <p id="statusDescricao" class="status-descricao">Insira os dois compostos químicos no painel acima para iniciar o mapeamento molecular de riscos e reações.</p>
+                    
+                    <div id="blocoSintomas" class="sintomas-container" style="display: none;">
+                        <strong>🦠 Impacto Fisiológico:</strong> <span id="textoSintomas"></span>
+                    </div>
+
+                    <div id="alertaAcao" class="alerta-acao" style="display: none;">
+                        <strong>⚠️ Ação Imediata Sugerida:</strong> <span id="textoAcao"></span>
+                    </div>
+
+                    <div id="blocoEpis" class="epi-container" style="display: none;">
+                        <h3>EPIs Recomendados:</h3>
+                        <div class="epi-lista" id="listaEpis"></div>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="coluna-lateral nao-imprimir">
+                <div class="info-card emergencia">
+                    <h3>🚨 Protocolo de Emergência</h3>
+                    <p>Em caso de acidentes severos:</p>
+                    <ul>
+                        <li><strong>Inalação:</strong> Vá para um local aberto imediatamente.</li>
+                        <li><strong>Contato:</strong> Lave a pele/olhos por 15 min.</li>
+                    </ul>
+                    <div class="telefones-uteis">
+                        <div class="tel-item"><strong>SAMU:</strong> 192</div>
+                        <div class="tel-item"><strong>CEATOX:</strong> 0800-0148110</div>
+                    </div>
+                </div>
+
+                <div class="info-card historico">
+                    <div class="header-historico" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3>📋 Diário de Testes</h3>
+                        <button onclick="exportarDados()" class="btn-acao" style="padding: 4px 8px; font-size: 11px;">⬇️ Exportar TXT</button>
+                    </div>
+                    <div id="listaHistorico" class="lista-historico">
+                        <p class="historico-vazio">Nenhuma mistura testada ainda.</p>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+
+        <footer class="app-footer nao-imprimir">
+            <p>Desenvolvido estritamente para fins informativos e didáticos. O software não substitui as fichas técnicas oficiais.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
