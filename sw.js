@@ -1,4 +1,4 @@
-const Li_NAME = 'chemshield-v1';
+const CACHE_NAME = 'LimpApp-v1';
 const ASSETS = [
   './',
   './index.html',
