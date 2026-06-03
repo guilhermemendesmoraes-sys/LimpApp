@@ -6,7 +6,6 @@
     --cor-card: #ffffff;
     --cor-texto: #2c3e50;
 }
-
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background-color: var(--cor-fundo);
@@ -60,6 +59,7 @@ label {
     margin-bottom: 8px;
     color: #34495e;
 }
+
 
 select {
     width: 100%;
