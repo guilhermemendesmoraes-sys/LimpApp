@@ -122,6 +122,14 @@ select:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.
 .sintomas-container { margin-top: 15px; padding: 10px 12px; background-color: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; border-radius: 4px 8px 8px 4px; font-size: 14px; color: #c7d2fe; }
 .sintomas-container strong { color: #818cf8; }
 
+/* --- BOTÕES DE EMERGÊNCIA --- */
+.botoes-emergencia { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+.btn-emergencia { flex: 1; text-align: center; text-decoration: none; padding: 12px 15px; border-radius: 8px; font-weight: 700; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid transparent; }
+.bombeiros { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: #ef4444; }
+.bombeiros:hover { background-color: #ef4444; color: #fff; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+.ceatox { background-color: rgba(245, 158, 11, 0.15); color: #fcd34d; border-color: #f59e0b; }
+.ceatox:hover { background-color: #f59e0b; color: #fff; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+
 @keyframes sacudir { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes piscarAlerta { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
@@ -134,7 +142,8 @@ select:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.
     .dados-quimicos { border-color: #000; color: #000; }
     .dado-item, .status-descricao, .status-titulo, .alerta-acao, .sintomas-container { color: #000 !important; }
     .badge-ph { border: 1px solid #000; color: #000; }
+    .btn-emergencia { display: none !important; }
 }
 
 @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .painel-selecao { flex-direction: column; } }
+@media (max-width: 600px) { .painel-selecao { flex-direction: column; } .btn-emergencia { flex-basis: 100%; } }
