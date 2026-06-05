@@ -18,7 +18,10 @@ const bancoQuimico = {
     "desengordurante": { nome: "Solventes + Alcalinizantes", formula: "Mistura Solúvel", classe: "Desengraxante", ph: 11.0 },
     "limpador_aluminio": { nome: "Ácido Sulfúrico", formula: "H₂SO₄", classe: "Ácido Corrosivo", ph: 1.0 },
     "querosene": { nome: "Hidrocarbonetos Alifáticos", formula: "CnH2n+2", classe: "Solvente", ph: 7.0 },
-    "alcool_isopropilico": { nome: "Isopropanol", formula: "C₃H₈O", classe: "Solvente Orgânico", ph: 7.0 }
+    "alcool_isopropilico": { nome: "Isopropanol", formula: "C₃H₈O", classe: "Solvente Orgânico", ph: 7.0 },
+    /* --- NOVOS PRODUTOS AQUI --- */
+    "acido_muriatico": { nome: "Ácido Clorídrico", formula: "HCl", classe: "Ácido Forte", ph: 1.0 },
+    "cloro_piscina": { nome: "Hipoclorito de Cálcio", formula: "Ca(ClO)₂", classe: "Oxidante Forte", ph: 11.5 }
 };
 
 function classificarPH(valor) {
@@ -89,6 +92,48 @@ function calcularMistura() {
     let tipo = "seguro", icone = "✓", titulo = "", descricao = "", epis = [], acao = "", sintomas = "";
 
     switch(combinacao) {
+        /* --- NOVAS REGRAS INSERIDAS AQUI --- */
+        case "acido_muriatico_+_agua_sanitaria":
+        case "acido_muriatico_+_cloro_piscina":
+            tipo = "perigo"; icone = "☠️";
+            titulo = "Perigo Letal: Gás Cloro Puro";
+            descricao = "A mistura de ácido forte com compostos clorados libera instantaneamente gás cloro puro, altamente tóxico.";
+            sintomas = "Asfixia severa, danos permanentes às vias aéreas, parada respiratória e risco à vida.";
+            epis = ["Evacuação Imediata da Área"];
+            acao = "Abandone o local sem respirar o gás e chame socorro. Não tente limpar.";
+            break;
+
+        case "alcool_+_cloro_piscina":
+        case "cloro_piscina_+_querosene":
+        case "cloro_piscina_+_desinfetante_pinho":
+        case "acetona_+_cloro_piscina":
+            tipo = "perigo"; icone = "💥";
+            titulo = "Perigo: Combustão Espontânea";
+            descricao = "O cloro de piscina é um oxidante tão agressivo que pode inflamar ou explodir solventes orgânicos sozinho.";
+            sintomas = "Queimaduras de origem térmica e química, lesões físicas causadas por explosão.";
+            epis = ["Distância de Segurança Absoluta"];
+            acao = "Nunca misture químicos de piscina com líquidos orgânicos. Isole a área.";
+            break;
+
+        case "agua_oxigenada_+_agua_sanitaria":
+            tipo = "perigo"; icone = "💥";
+            titulo = "Perigo: Explosão por Pressão";
+            descricao = "A reação libera um volume massivo de gás oxigênio muito rápido. Em frascos fechados, a pressão rompe o plástico.";
+            sintomas = "Risco de lesões físicas causadas pelo impacto de estilhaços da embalagem.";
+            epis = ["Óculos de Proteção", "Luvas de Borracha"];
+            acao = "Nunca feche o recipiente. Mantenha o rosto afastado da abertura.";
+            break;
+            
+        case "acido_muriatico_+_bicarbonato":
+            tipo = "atencao"; icone = "⚠️";
+            titulo = "Atenção: Pressão por Gás e Transbordamento";
+            descricao = "O ácido reage violentamente com o bicarbonato liberando gás carbônico rapidamente, gerando muita espuma e pressão.";
+            sintomas = "Risco de lesões nos olhos por respingos de ácido durante o borbulhamento.";
+            epis = ["Óculos de Proteção", "Luvas de Borracha"];
+            acao = "Não feche o recipiente. Use recipiente aberto e espaçoso se for neutralizar sobras de ácido.";
+            break;
+
+        /* --- REGRAS ORIGINAIS MANTIDAS --- */
         case "agua_sanitaria_+_querosene":
         case "agua_sanitaria_+_limpador_aluminio":
         case "agua_sanitaria_+_removedor_ferrugem":
@@ -117,7 +162,7 @@ function calcularMistura() {
         case "soda_caustica_+_vinagre":
             tipo = "perigo"; icone = "🌋";
             titulo = "Perigo: Reação Exotérmica / Corrosão";
-            descricao = "Misturar ácidos com bases fortes gera calor instantâneo (fervura) e cria soluções extremamente corrosivas.";
+            descricao = "Misturar ácidos com bases fortes gera calor instantâneo (fervura) e cria solutions extremamente corrosivas.";
             sintomas = "Queimaduras químicas de 2º ou 3º grau na pele, necrose de tecido e cegueira permanente se houver contato ocular.";
             epis = ["Protetor Facial", "Luvas de Borracha Grossas", "Avental de PVC"];
             acao = "Se respingar, lave a pele com água corrente por 15 a 20 minutos ininterruptos.";
@@ -178,7 +223,6 @@ function calcularMistura() {
     adicionarAoHistorico(nomeA, nomeB, tipo, titulo);
     prepararTexto(titulo, descricao);
     
-    // Atualizado para LimpApp
     laudoAtual = `🧪 LimpApp - Relatório de Mistura\n\nReagentes:\n1. ${nomeA} [pH: ${dadosA.ph}]\n2. ${nomeB} [pH: ${dadosB.ph}]\n\n⚠️ Status: ${titulo}\n🔬 Análise: ${descricao}\n🦠 Sintomas: ${sintomas}\n\n🛡️ EPIs Necessários: ${epis.join(", ")}`;
 }
 
@@ -187,6 +231,7 @@ function atualizarInterface(classeEstilo, icone, titulo, descricao, epis, dadoA 
     const divDados = document.getElementById('dadosQuimicos');
     const divAcao = document.getElementById('alertaAcao');
     const divSintomas = document.getElementById('blocoSintomas');
+    const divBotoesEmergencia = document.getElementById('botoesEmergencia'); // Nova Div de Emergência
     
     const ativos = classeEstilo !== "estado-espera";
     document.getElementById('btnOuvir').style.display = ativos ? "inline-block" : "none";
@@ -224,6 +269,13 @@ function atualizarInterface(classeEstilo, icone, titulo, descricao, epis, dadoA 
         document.getElementById('textoAcao').innerText = acao;
     } else {
         divAcao.style.display = "none";
+    }
+
+    // LÓGICA PARA EXIBIR BOTÕES DE EMERGÊNCIA APENAS SE FOR PERIGO
+    if (classeEstilo === "perigo" && divBotoesEmergencia) {
+        divBotoesEmergencia.style.display = "flex";
+    } else if (divBotoesEmergencia) {
+        divBotoesEmergencia.style.display = "none";
     }
 
     quadro.className = `resultado-card ${classeEstilo}`;
@@ -268,7 +320,6 @@ function exportarDados() {
         return;
     }
     
-    // Atualizado para LimpApp
     let conteudo = "--- DIÁRIO DE TESTES: LIMPAPP ---\n\n";
     historicoTestes.forEach((teste, index) => {
         conteudo += `Teste #${index + 1}\n`;
@@ -281,7 +332,7 @@ function exportarDados() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "Diario_LimpApp.txt"; // Atualizado para LimpApp
+    link.download = "Diario_LimpApp.txt"; 
     link.click();
     URL.revokeObjectURL(url);
 }
