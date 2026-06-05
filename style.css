@@ -1,140 +1,69 @@
 :root {
-    --bg-global: #0b0f19;
-    --bg-card: #151f32;
-    --bg-input: #0e1626;
-    --texto-principal: #f8fafc;
-    --texto-secundario: #64748b;
-    --borda-padrao: #223249;
-    
-    --cor-seguro: #10b981;
-    --bg-seguro: rgba(16, 185, 129, 0.08);
-    --cor-atencao: #fbbf24;
-    --bg-atencao: rgba(251, 191, 36, 0.08);
-    --cor-perigo: #f87171;
-    --bg-perigo: rgba(248, 113, 113, 0.12);
+    --primary: #0056b3;
+    --bg: #f4f7f6;
+    --texto: #333;
+    --perigo: #d32f2f;
+    --atencao: #f57c00;
+    --seguro: #388e3c;
+    --espera: #757575;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: var(--bg); color: var(--texto); margin: 0; padding: 0; }
 
-body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background-color: var(--bg-global);
-    color: var(--texto-principal);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
+.container { max-width: 600px; margin: 0 auto; padding: 20px; }
 
-.app-container {
-    background-color: var(--bg-card);
-    border: 1px solid var(--borda-padrao);
-    border-radius: 28px;
-    padding: 40px;
-    max-width: 1100px;
-    width: 100%;
-    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
-}
+.app-header { background: var(--primary); color: white; padding: 20px; text-align: center; border-radius: 0 0 15px 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.app-header h1 { margin: 0; font-size: 24px; }
+.app-header p { margin: 5px 0 0; opacity: 0.8; font-size: 14px; }
 
-.app-header { text-align: center; margin-bottom: 35px; position: relative; }
-.logo-wrapper { position: relative; display: inline-block; margin-bottom: 10px; }
-.logo-shield { font-size: 42px; display: inline-block; }
-.logo-hazard { font-size: 20px; position: absolute; bottom: 0; right: -5px; animation: piscarAlerta 1.5s infinite; }
-.gradient-text { background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.subtitulo { color: var(--texto-secundario); font-size: 15px; max-width: 600px; margin: 8px auto 0; line-height: 1.5; }
+.painel-selecao { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+.input-grupo { margin-bottom: 15px; }
+.input-grupo label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--primary); }
+select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; background: #fafafa; }
 
-.dashboard-grid { display: grid; grid-template-columns: 1fr 320px; gap: 30px; }
+.btn-limpar { width: 100%; padding: 12px; background: #e0e0e0; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #555; }
+.btn-limpar:hover { background: #d5d5d5; }
 
-.painel-selecao { display: flex; align-items: center; gap: 15px; background-color: var(--bg-input); border: 1px solid var(--borda-padrao); padding: 20px; border-radius: 20px; margin-bottom: 25px; }
-.campo-selecao { flex: 1; }
-.campo-selecao label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--texto-secundario); margin-bottom: 8px; }
-select { width: 100%; padding: 14px 16px; background-color: var(--bg-global); border: 1px solid var(--borda-padrao); border-radius: 12px; color: var(--texto-principal); font-size: 14.5px; outline: none; cursor: pointer; transition: all 0.25s ease; }
-select:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25); }
-.divisor-vs { font-weight: 900; color: #334155; font-size: 14px; margin-top: 18px; background-color: var(--bg-global); padding: 8px 12px; border-radius: 50%; border: 1px solid var(--borda-padrao); }
+.resultado-card { background: white; padding: 25px; border-radius: 10px; text-align: center; border-top: 5px solid var(--espera); box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; transition: all 0.3s; }
+.resultado-card.perigo { border-color: var(--perigo); }
+.resultado-card.atencao { border-color: var(--atencao); }
+.resultado-card.seguro { border-color: var(--seguro); }
 
-.resultado-card { border-radius: 20px; padding: 30px; border: 1px solid var(--borda-padrao); background-color: var(--bg-input); transition: all 0.3s ease; position: relative; overflow: hidden; }
+.icone-destaque { font-size: 48px; margin-bottom: 10px; }
+#statusTitulo { margin: 0 0 10px; font-size: 22px; }
+#statusDescricao { color: #555; margin-bottom: 20px; line-height: 1.5; }
 
-.barra-risco-container { width: 100%; height: 6px; background-color: var(--borda-padrao); position: absolute; top: 0; left: 0; }
-.barra-risco-preenchimento { height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s ease; }
+.dados-moleculares { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+.molecula { display: flex; flex-direction: column; font-size: 13px; }
+.nome-cientifico { font-weight: bold; color: var(--primary); }
+.operador-soma { font-weight: bold; font-size: 20px; color: #999; }
+.badge-ph { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; margin-top: 5px; }
+.ph-acido { background: #d32f2f; }
+.ph-neutro { background: #1976d2; }
+.ph-alcalino { background: #388e3c; }
 
-.resultado-header { display: flex; align-items: center; gap: 15px; margin-bottom: 14px; margin-top: 10px; justify-content: space-between; }
-.titulo-wrapper { flex: 1; }
-.resultado-icone { font-size: 28px; }
-.status-titulo { font-size: 22px; font-weight: 700; }
+.alerta-sintomas { background: #fff3e0; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; text-align: left; border-left: 4px solid #ff9800; }
+.alerta-acao { background: #ffebee; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; text-align: left; border-left: 4px solid var(--perigo); }
 
-.dados-quimicos { background-color: var(--bg-global); border: 1px dashed var(--borda-padrao); padding: 12px; border-radius: 10px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
-.dado-item { font-size: 13.5px; font-family: monospace; color: #94a3b8; display: flex; align-items: center; flex-wrap: wrap; }
-.dado-label { font-weight: bold; color: var(--texto-secundario); font-family: 'Segoe UI', sans-serif; margin-right: 5px; }
+.lista-epis { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+.epi-item { background: #e3f2fd; color: var(--primary); padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
 
-.status-descricao { font-size: 15px; line-height: 1.6; color: #94a3b8; }
+/* Botões de Emergência */
+.botoes-emergencia { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.btn-emergencia { display: block; text-decoration: none; padding: 12px; border-radius: 8px; font-weight: bold; color: white; text-align: center; }
+.bombeiros { background-color: #d32f2f; }
+.ceatox { background-color: #1976d2; }
 
-.botoes-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn-acao { background-color: var(--borda-padrao); border: 1px solid transparent; color: var(--texto-principal); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-.btn-acao:hover { background-color: #2e4463; }
-.btn-danger { background-color: #3f1e1e; color: #f87171; }
-.btn-danger:hover { background-color: #552424; }
-.btn-print { background-color: #1e3a8a; color: #bfdbfe; }
-.btn-print:hover { background-color: #1e40af; }
+.botoes-acao { display: flex; gap: 10px; justify-content: center; }
+.botoes-acao button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; background: var(--primary); }
 
-.epi-container { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--borda-padrao); }
-.epi-container h3 { font-size: 13px; color: var(--texto-principal); text-transform: uppercase; margin-bottom: 12px; }
-.epi-lista { display: flex; gap: 10px; flex-wrap: wrap; }
-.epi-item { background-color: var(--bg-global); border: 1px solid var(--borda-padrao); padding: 8px 14px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.historico-section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.historico-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+.historico-header h3 { margin: 0; font-size: 16px; }
+.historico-header button { background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
 
-.resultado-card.seguro { border-color: var(--cor-seguro); background-color: var(--bg-seguro); }
-.resultado-card.seguro .status-titulo { color: var(--cor-seguro); }
-.resultado-card.seguro .barra-risco-preenchimento { width: 15%; background-color: var(--cor-seguro); }
-
-.resultado-card.atencao { border-color: var(--cor-atencao); background-color: var(--bg-atencao); }
-.resultado-card.atencao .status-titulo { color: var(--cor-atencao); }
-.resultado-card.atencao .barra-risco-preenchimento { width: 50%; background-color: var(--cor-atencao); }
-
-.resultado-card.perigo { border-color: var(--cor-perigo); background-color: var(--bg-perigo); animation: sacudir 0.4s ease-in-out; }
-.resultado-card.perigo .status-titulo { color: var(--cor-perigo); }
-.resultado-card.perigo .barra-risco-preenchimento { width: 100%; background-color: var(--cor-perigo); box-shadow: 0 0 10px var(--cor-perigo); }
-
-.coluna-lateral { display: flex; flex-direction: column; gap: 20px; }
-.info-card { background-color: var(--bg-input); border: 1px solid var(--borda-padrao); border-radius: 20px; padding: 22px; }
-.info-card h3 { font-size: 16px; margin-bottom: 12px; font-weight: 600; }
-.info-card p, .info-card ul { font-size: 13.5px; color: #94a3b8; line-height: 1.5; margin-bottom: 10px; }
-.tel-item { flex: 1; background-color: var(--bg-global); border: 1px solid var(--borda-padrao); padding: 8px; border-radius: 8px; font-size: 12px; text-align: center; margin-top: 5px; }
-
-.lista-historico { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
-.historico-item { background-color: var(--bg-global); border-left: 3px solid var(--borda-padrao); padding: 8px 12px; border-radius: 4px; font-size: 12.5px; }
-.historico-item.p-seguro { border-left-color: var(--cor-seguro); }
-.historico-item.p-atencao { border-left-color: var(--cor-atencao); }
-.historico-item.p-perigo { border-left-color: var(--cor-perigo); }
-
-.app-footer { text-align: center; margin-top: 35px; padding-top: 20px; border-top: 1px solid var(--borda-padrao); font-size: 12px; color: var(--texto-secundario); }
-
-/* --- NOVAS REGRAS E COMPONENTES AVANÇADOS --- */
-.badge-quimico { background-color: #1e293b; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 8px; border: 1px solid #334155; text-transform: uppercase; letter-spacing: 0.5px; }
-.badge-ph { padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 8px; font-weight: bold; color: #fff; }
-
-.ph-acido { background-color: #ef4444; border: 1px solid #7f1d1d; }
-.ph-neutro { background-color: #10b981; border: 1px solid #064e3b; }
-.ph-alcalino { background-color: #3b82f6; border: 1px solid #1e3a8a; }
-
-.alerta-acao { margin-top: 15px; padding: 12px; background-color: rgba(248, 113, 113, 0.1); border-left: 4px solid var(--cor-perigo); border-radius: 4px 8px 8px 4px; font-size: 14px; color: #fecdd3; }
-.alerta-acao strong { color: var(--cor-perigo); }
-
-.sintomas-container { margin-top: 15px; padding: 10px 12px; background-color: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; border-radius: 4px 8px 8px 4px; font-size: 14px; color: #c7d2fe; }
-.sintomas-container strong { color: #818cf8; }
-
-@keyframes sacudir { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-@keyframes piscarAlerta { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-@media print {
-    body { background-color: white; color: black; padding: 0; }
-    .nao-imprimir { display: none !important; }
-    .app-container { border: none; box-shadow: none; padding: 0; max-width: 100%; }
-    .dashboard-grid { grid-template-columns: 1fr; display: block; }
-    .resultado-card { border: 2px solid #000; background-color: white; break-inside: avoid; }
-    .dados-quimicos { border-color: #000; color: #000; }
-    .dado-item, .status-descricao, .status-titulo, .alerta-acao, .sintomas-container { color: #000 !important; }
-    .badge-ph { border: 1px solid #000; color: #000; }
-}
-
-@media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .painel-selecao { flex-direction: column; } }
+.historico-item { padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; border-left: 4px solid transparent; margin-bottom: 5px; }
+.p-perigo { border-left-color: var(--perigo); background: #ffebee; }
+.p-atencao { border-left-color: var(--atencao); background: #fff8e1; }
+.p-seguro { border-left-color: var(--seguro); background: #e8f5e9; }

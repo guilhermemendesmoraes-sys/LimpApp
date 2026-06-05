@@ -1,7 +1,7 @@
 {
   "name": "LimpApp",
   "short_name": "LimpApp",
-  "description": "Simulador de mapeamento molecular de riscos",
+  "description": "Simulador de mapeamento molecular de riscos químicos",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",

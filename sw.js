@@ -1,4 +1,4 @@
-const CACHE_NAME = 'LimpApp-v1';
+const CACHE_NAME = 'limpapp-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -9,20 +9,14 @@ const ASSETS = [
   './icon-512.png'
 ];
 
-// Instala o motor e salva os arquivos no cache do celular
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS);
-        })
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
     );
 });
 
-// Intercepta as requisições para funcionar sem internet
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
+        caches.match(event.request).then((response) => response || fetch(event.request))
     );
 });
