@@ -1,362 +1,198 @@
 let textoUltimoAlerta = "";
-let laudoAtual = ""; 
+let laudoAtual = "";
 let historicoTestes = [];
 
-const bancoQuimico = {
-    "agua_sanitaria": { nome: "Hipoclorito de Sódio", formula: "NaClO", classe: "Oxidante Forte", ph: 12.5 },
-    "vinagre": { nome: "Ácido Acético", formula: "CH₃COOH", classe: "Ácido Fraco", ph: 2.5 },
-    "amonia": { nome: "Hidróxido de Amônio", formula: "NH₄OH", classe: "Base", ph: 11.5 },
-    "alcool": { nome: "Etanol", formula: "C₂H₅OH", classe: "Solvente Orgânico", ph: 7.0 },
-    "detergente": { nome: "Tensoativos Aniônicos", formula: "Mistura Sintética", classe: "Agente Neutro", ph: 7.0 },
-    "agua_oxigenada": { nome: "Peróxido de Hidrogênio", formula: "H₂O₂", classe: "Agente Oxidante", ph: 4.5 },
-    "bicarbonato": { nome: "Bicarbonato de Sódio", formula: "NaHCO₃", classe: "Sal Alcalino", ph: 8.3 },
-    "desinfetante_pinho": { nome: "Óleos de Pinho", formula: "Compostos Aromáticos", classe: "Desinfetante", ph: 6.0 },
-    "soda_caustica": { nome: "Hidróxido de Sódio", formula: "NaOH", classe: "Base Forte", ph: 14.0 },
-    "sabao_po": { nome: "Alquilbenzeno Sulfonato", formula: "Mistura Alcalina", classe: "Detergente Alcalino", ph: 10.0 },
-    "removedor_ferrugem": { nome: "Ácido Oxálico", formula: "H₂C₂O₄", classe: "Ácido Forte", ph: 1.5 },
-    "acetona": { nome: "Propanona", formula: "C₃H₆O", classe: "Solvente Volátil", ph: 7.0 },
-    "desengordurante": { nome: "Solventes + Alcalinizantes", formula: "Mistura Solúvel", classe: "Desengraxante", ph: 11.0 },
-    "limpador_aluminio": { nome: "Ácido Sulfúrico", formula: "H₂SO₄", classe: "Ácido Corrosivo", ph: 1.0 },
-    "querosene": { nome: "Hidrocarbonetos Alifáticos", formula: "CnH2n+2", classe: "Solvente", ph: 7.0 },
-    "alcool_isopropilico": { nome: "Isopropanol", formula: "C₃H₈O", classe: "Solvente Orgânico", ph: 7.0 },
-    /* --- NOVOS PRODUTOS AQUI --- */
-    "acido_muriatico": { nome: "Ácido Clorídrico", formula: "HCl", classe: "Ácido Forte", ph: 1.0 },
-    "cloro_piscina": { nome: "Hipoclorito de Cálcio", formula: "Ca(ClO)₂", classe: "Oxidante Forte", ph: 11.5 }
-};
+const API_BASE = "http://127.0.0.1:8000/api";
 
-function classificarPH(valor) {
-    if (valor < 6) return "ph-acido";
-    if (valor > 8) return "ph-alcalino";
-    return "ph-neutro";
+// Executa automaticamente ao carregar a página para alimentar as opções do select vinda do SQL
+window.addEventListener("DOMContentLoaded", () => {
+    carregarProdutosDoBanco();
+});
+
+function carregarProdutosDoBanco() {
+    fetch(`${API_BASE}/produtos`)
+        .then(response => response.json())
+        .then(produtos => {
+            const elA = document.getElementById("produtoA");
+            const elB = document.getElementById("produtoB");
+
+            const placeholder = '<option value="">Selecione um produto...</option>';
+            elA.innerHTML = placeholder;
+            elB.innerHTML = placeholder;
+
+            produtos.forEach(p => {
+                const opt = `<option value="${p.id}">${p.nome}</option>`;
+                elA.innerHTML += opt;
+                elB.innerHTML += opt;
+            });
+        })
+        .catch(err => {
+            console.error("Falha ao comunicar com a API do LimpApp:", err);
+            document.getElementById("produtoA").innerHTML = '<option value="">Erro ao carregar banco.</option>';
+            document.getElementById("produtoB").innerHTML = '<option value="">Erro ao carregar banco.</option>';
+        });
 }
-
-function falarTexto(mensagem) {
-    window.speechSynthesis.cancel();
-    const falar = new SpeechSynthesisUtterance(mensagem);
-    const vozes = window.speechSynthesis.getVoices();
-    const vozPtBr = vozes.find(v => v.lang === 'pt-BR' || v.lang === 'pt_BR');
-    if (vozPtBr) { falar.voice = vozPtBr; }
-    falar.lang = 'pt-BR';
-    falar.rate = 0.9;
-    window.speechSynthesis.speak(falar);
-}
-
-window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
 
 function calcularMistura() {
-    const elA = document.getElementById('produtoA');
-    const elB = document.getElementById('produtoB');
+    const elA = document.getElementById("produtoA");
+    const elB = document.getElementById("produtoB");
     const pA = elA.value;
     const pB = elB.value;
 
-    if (!pA && !pB) { 
+    if (!pA && !pB) {
         atualizarInterface("estado-espera", "🔬", "Aguardando Parâmetros", "Insira os dois compostos químicos no painel acima para iniciar o mapeamento molecular de riscos e reações.", []);
-        document.getElementById('dadosQuimicos').style.display = "none";
-        return; 
+        document.getElementById("dadosQuimicos").style.display = "none";
+        return;
     }
 
     if (!pA || !pB) {
         let nomeSelecionado = pA ? elA.options[elA.selectedIndex].text : elB.options[elB.selectedIndex].text;
-        atualizarInterface("estado-espera", "⏳", "Aguardando 2º Produto", `Você selecionou: ${nomeSelecionado}. Agora escolha o outro componente químico para processar a análise.`, []);
-        document.getElementById('dadosQuimicos').style.display = "none";
+        atualizarInterface("estado-espera", "⏳", "Aguardando 2º Produto", `Você pré-selecionou: ${nomeSelecionado}. Forneça o segundo composto para fechamento da análise.`, []);
+        document.getElementById("dadosQuimicos").style.display = "none";
         return;
     }
 
     const nomeA = elA.options[elA.selectedIndex].text;
     const nomeB = elB.options[elB.selectedIndex].text;
 
-    const dadosA = { 
-        nomeForm: `${bancoQuimico[pA].nome} (${bancoQuimico[pA].formula})`, 
-        classe: bancoQuimico[pA].classe, 
-        ph: bancoQuimico[pA].ph,
-        classePh: classificarPH(bancoQuimico[pA].ph)
-    };
-    
-    const dadosB = { 
-        nomeForm: `${bancoQuimico[pB].nome} (${bancoQuimico[pB].formula})`, 
-        classe: bancoQuimico[pB].classe, 
-        ph: bancoQuimico[pB].ph,
-        classePh: classificarPH(bancoQuimico[pB].ph)
-    };
+    // Dispara a consulta na matriz de reações do banco SQLite através do Python
+    fetch(`${API_BASE}/analisar?pA=${pA}&pB=${pB}`)
+        .then(response => response.json())
+        .then(data => {
+            const dadosAFormatados = {
+                nomeForm: `${data.dadosA.nome} (${data.dadosA.formula})`,
+                classe: data.dadosA.classe,
+                ph: data.dadosA.ph,
+                classePh: classificarPH(data.dadosA.ph)
+            };
 
-    if (pA === pB) {
-        const tit = "Mistura Estável (Mesmo Produto)";
-        const desc = "A união de recipientes do mesmo composto não altera as propriedades moleculares primárias.";
-        atualizarInterface("seguro", "✓", tit, desc, ["Luvas de Proteção"], dadosA, dadosB, "", "Nenhum impacto biológico adverso além dos já previstos no rótulo.");
-        adicionarAoHistorico(nomeA, nomeB, "seguro", tit);
-        prepararTexto(tit, desc);
-        return;
-    }
+            const dadosBFormatados = {
+                nomeForm: `${data.dadosB.nome} (${data.dadosB.formula})`,
+                classe: data.dadosB.classe,
+                ph: data.dadosB.ph,
+                classePh: classificarPH(data.dadosB.ph)
+            };
 
-    const combinacao = [pA, pB].sort().join('_+_');
-    let tipo = "seguro", icone = "✓", titulo = "", descricao = "", epis = [], acao = "", sintomas = "";
+            const listaEpis = data.epis ? data.epis.split(", ") : [];
 
-    switch(combinacao) {
-        /* --- NOVAS REGRAS INSERIDAS AQUI --- */
-        case "acido_muriatico_+_agua_sanitaria":
-        case "acido_muriatico_+_cloro_piscina":
-            tipo = "perigo"; icone = "☠️";
-            titulo = "Perigo Letal: Gás Cloro Puro";
-            descricao = "A mistura de ácido forte com compostos clorados libera instantaneamente gás cloro puro, altamente tóxico.";
-            sintomas = "Asfixia severa, danos permanentes às vias aéreas, parada respiratória e risco à vida.";
-            epis = ["Evacuação Imediata da Área"];
-            acao = "Abandone o local sem respirar o gás e chame socorro. Não tente limpar.";
-            break;
-
-        case "alcool_+_cloro_piscina":
-        case "cloro_piscina_+_querosene":
-        case "cloro_piscina_+_desinfetante_pinho":
-        case "acetona_+_cloro_piscina":
-            tipo = "perigo"; icone = "💥";
-            titulo = "Perigo: Combustão Espontânea";
-            descricao = "O cloro de piscina é um oxidante tão agressivo que pode inflamar ou explodir solventes orgânicos sozinho.";
-            sintomas = "Queimaduras de origem térmica e química, lesões físicas causadas por explosão.";
-            epis = ["Distância de Segurança Absoluta"];
-            acao = "Nunca misture químicos de piscina com líquidos orgânicos. Isole a área.";
-            break;
-
-        case "agua_oxigenada_+_agua_sanitaria":
-            tipo = "perigo"; icone = "💥";
-            titulo = "Perigo: Explosão por Pressão";
-            descricao = "A reação libera um volume massivo de gás oxigênio muito rápido. Em frascos fechados, a pressão rompe o plástico.";
-            sintomas = "Risco de lesões físicas causadas pelo impacto de estilhaços da embalagem.";
-            epis = ["Óculos de Proteção", "Luvas de Borracha"];
-            acao = "Nunca feche o recipiente. Mantenha o rosto afastado da abertura.";
-            break;
+            atualizarInterface(data.tipo, data.icone, data.titulo, data.descricao, listaEpis, dadosAFormatados, dadosBFormatados, data.acao, data.sintomas);
+            adicionarAoHistorico(nomeA, nomeB, data.tipo, data.titulo);
             
-        case "acido_muriatico_+_bicarbonato":
-            tipo = "atencao"; icone = "⚠️";
-            titulo = "Atenção: Pressão por Gás e Transbordamento";
-            descricao = "O ácido reage violentamente com o bicarbonato liberando gás carbônico rapidamente, gerando muita espuma e pressão.";
-            sintomas = "Risco de lesões nos olhos por respingos de ácido durante o borbulhamento.";
-            epis = ["Óculos de Proteção", "Luvas de Borracha"];
-            acao = "Não feche o recipiente. Use recipiente aberto e espaçoso se for neutralizar sobras de ácido.";
-            break;
-
-        /* --- REGRAS ORIGINAIS MANTIDAS --- */
-        case "agua_sanitaria_+_querosene":
-        case "agua_sanitaria_+_limpador_aluminio":
-        case "agua_sanitaria_+_removedor_ferrugem":
-        case "agua_sanitaria_+_amonia":
-        case "agua_sanitaria_+_vinagre":
-            tipo = "perigo"; icone = "☣️";
-            titulo = "Perigo Crítico: Gás Tóxico";
-            descricao = "Esta combinação quebra a estabilidade das moléculas, liberando nuvens de gases pesados que atacam as mucosas.";
-            sintomas = "Tosse severa, lacrimejamento imediato, sensação de asfixia e risco de edema pulmonar agudo (líquido no pulmão).";
-            epis = ["Máscara Respiratória", "Óculos de Proteção", "Luvas Nitrílicas"];
-            acao = "Evacue o local imediatamente. Procure ar fresco.";
-            break;
-
-        case "agua_sanitaria_+_sabao_po":
-            tipo = "perigo"; icone = "☣️";
-            titulo = "Perigo: Cloramina e Inativação";
-            descricao = "O hipoclorito reage com compostos do sabão em pó, anulando a limpeza de ambos e liberando gás cloramina tóxico.";
-            sintomas = "Ardência imediata nos olhos, nariz e garganta, tosse severa e risco de problemas respiratórios agudos.";
-            epis = ["Máscara Respiratória", "Ambiente Bem Ventilado"];
-            acao = "Não permaneça no ambiente fechado com a mistura. Abra janelas e portas.";
-            break;
-
-        case "agua_oxigenada_+_vinagre":
-        case "limpador_aluminio_+_soda_caustica":
-        case "removedor_ferrugem_+_soda_caustica":
-        case "soda_caustica_+_vinagre":
-            tipo = "perigo"; icone = "🌋";
-            titulo = "Perigo: Reação Exotérmica / Corrosão";
-            descricao = "Misturar ácidos com bases fortes gera calor instantâneo (fervura) e cria solutions extremamente corrosivas.";
-            sintomas = "Queimaduras químicas de 2º ou 3º grau na pele, necrose de tecido e cegueira permanente se houver contato ocular.";
-            epis = ["Protetor Facial", "Luvas de Borracha Grossas", "Avental de PVC"];
-            acao = "Se respingar, lave a pele com água corrente por 15 a 20 minutos ininterruptos.";
-            break;
-
-        case "acetona_+_agua_sanitaria":
-        case "agua_sanitaria_+_alcool":
-        case "agua_sanitaria_+_alcool_isopropilico":
-            tipo = "perigo"; icone = "🛑";
-            titulo = "Perigo: Clorofórmio / Halofórmio";
-            descricao = "O cloro ativo ataca o solvente e cria vapores que deprimem o sistema nervoso central.";
-            sintomas = "Tontura progressiva, náuseas, confusão mental, síncope (desmaio) e depressão respiratória.";
-            epis = ["Óculos de Proteção", "Luvas Nitrílicas", "Máscara de Carvão"];
-            acao = "Ao primeiro sinal de enjoo, saia do recinto.";
-            break;
-
-        case "bicarbonato_+_vinagre":
-        case "bicarbonato_+_limpador_aluminio":
-        case "bicarbonato_+_removedor_ferrugem":
-            tipo = "atencao"; icone = "⚠️";
-            titulo = "Atenção: Pressão por Gás";
-            descricao = "Neutralização rápida com liberação de gás carbônico (CO2). Pode causar explosão física de frascos fechados.";
-            sintomas = "Risco de lesões físicas causadas por estilhaços de embalagens rompidas pela pressão.";
-            epis = ["Luvas de Proteção"];
-            acao = "Nunca feche o recipiente enquanto estiver borbulhando.";
-            break;
-
-        case "acetona_+_alcool":
-        case "acetona_+_querosene":
-        case "alcool_+_querosene":
-        case "alcool_isopropilico_+_querosene":
-            tipo = "atencao"; icone = "🔥";
-            titulo = "Atenção: Alta Inflamabilidade";
-            descricao = "Misturar solventes evapora rápido e o gás invisível pode inflamar com uma faísca simples.";
-            sintomas = "Risco severo de queimaduras térmicas por explosão ambiental. Irritação leve nas vias aéreas.";
-            epis = ["Luvas Nitrílicas", "Ambiente Super Ventilado"];
-            acao = "Mantenha rigorosamente longe de fontes de ignição (calor, isqueiros, tomadas).";
-            break;
-
-        case "alcool_+_vinagre":
-        case "agua_sanitaria_+_detergente":
-        case "desengordurante_+_sabao_po":
-        case "detergente_+_vinagre":
-            titulo = "Combinação Segura";
-            descricao = "As moléculas são compatíveis. O uso é seguro para limpezas rotineiras.";
-            sintomas = "Nenhum agravo à saúde, exceto possível ressecamento da epiderme por uso prolongado.";
-            epis = ["Luvas de Látex Básicas"];
-            break;
-
-        default:
-            titulo = "Compatibilidade Genérica";
-            descricao = "Nenhum histórico de colisão molecular perigosa detectado no sistema.";
-            sintomas = "Efeitos biológicos limitados aos já descritos nos rótulos individuais dos produtos.";
-            epis = ["Luvas de Proteção"];
-    }
-
-    atualizarInterface(tipo, icone, titulo, descricao, epis, dadosA, dadosB, acao, sintomas);
-    adicionarAoHistorico(nomeA, nomeB, tipo, titulo);
-    prepararTexto(titulo, descricao);
-    
-    laudoAtual = `🧪 LimpApp - Relatório de Mistura\n\nReagentes:\n1. ${nomeA} [pH: ${dadosA.ph}]\n2. ${nomeB} [pH: ${dadosB.ph}]\n\n⚠️ Status: ${titulo}\n🔬 Análise: ${descricao}\n🦠 Sintomas: ${sintomas}\n\n🛡️ EPIs Necessários: ${epis.join(", ")}`;
+            textoUltimoAlerta = `${data.titulo}. ${data.descricao}`;
+            laudoAtual = `🧪 LimpApp - Relatório Técnico de Compatibilidade\n\nReagentes:\n1. ${dadosAFormatados.nomeForm} [pH: ${data.dadosA.ph}]\n2. ${dadosBFormatados.nomeForm} [pH: ${data.dadosB.ph}]\n\n⚠️ Resultado: ${data.titulo}\n🔬 Descrição: ${data.descricao}\n🦠 Sintomas: ${data.sintomas || "Nenhum"}\n🛡️ EPIs Recomendados: ${data.epis || "Nenhum"}`;
+        })
+        .catch(err => console.error("Erro ao analisar mistura:", err));
 }
 
-function atualizarInterface(classeEstilo, icone, titulo, descricao, epis, dadoA = null, dadoB = null, acao = "", sintomas = "") {
-    const quadro = document.getElementById('quadroResultado');
-    const divDados = document.getElementById('dadosQuimicos');
-    const divAcao = document.getElementById('alertaAcao');
-    const divSintomas = document.getElementById('blocoSintomas');
-    const divBotoesEmergencia = document.getElementById('botoesEmergencia'); // Nova Div de Emergência
-    
-    const ativos = classeEstilo !== "estado-espera";
-    document.getElementById('btnOuvir').style.display = ativos ? "inline-block" : "none";
-    document.getElementById('btnCopiar').style.display = ativos ? "inline-block" : "none";
-    document.getElementById('btnRelatorio').style.display = ativos ? "inline-block" : "none";
-    
-    if (dadoA && dadoB) {
-        divDados.style.display = "flex";
-        document.getElementById('nomeCientificoA').innerText = dadoA.nomeForm;
-        document.getElementById('classeA').innerText = dadoA.classe;
-        
-        let elPhA = document.getElementById('phA');
-        elPhA.innerText = `pH ~${dadoA.ph}`;
-        elPhA.className = `badge-ph ${dadoA.classePh}`;
+function classificarPH(ph) {
+    if (ph < 5.0) return "ph-acido";
+    if (ph > 8.5) return "ph-alcalino";
+    return "ph-neutro";
+}
 
-        document.getElementById('nomeCientificoB').innerText = dadoB.nomeForm;
-        document.getElementById('classeB').innerText = dadoB.classe;
-        
-        let elPhB = document.getElementById('phB');
-        elPhB.innerText = `pH ~${dadoB.ph}`;
-        elPhB.className = `badge-ph ${dadoB.classePh}`;
+function atualizarInterface(tipo, icone, titulo, descricao, epis, dadosA = null, dadosB = null, acao = "", sintomas = "") {
+    const card = document.getElementById("quadroResultado");
+    card.className = `resultado-card ${tipo}`;
+
+    document.getElementById("resultadoIcone").innerText = icone;
+    document.getElementById("statusTitulo").innerText = titulo;
+    document.getElementById("statusDescricao").innerText = descricao;
+
+    const divDados = document.getElementById("dadosQuimicos");
+    if (dadosA && dadosB) {
+        divDados.style.display = "flex";
+        document.getElementById("nomeCientificoA").innerText = dadosA.nomeForm;
+        document.getElementById("classeA").innerText = dadosA.classe;
+        document.getElementById("phA").innerText = `pH ${dadosA.ph}`;
+        document.getElementById("phA").className = `badge-ph ${dadosA.classePh}`;
+
+        document.getElementById("nomeCientificoB").innerText = dadosB.nomeForm;
+        document.getElementById("classeB").innerText = dadosB.classe;
+        document.getElementById("phB").innerText = `pH ${dadosB.ph}`;
+        document.getElementById("phB").className = `badge-ph ${dadosB.classePh}`;
     } else {
         divDados.style.display = "none";
     }
 
-    if (sintomas !== "") {
-        divSintomas.style.display = "block";
-        document.getElementById('textoSintomas').innerText = sintomas;
+    const blocoSintomas = document.getElementById("blocoSintomas");
+    if (sintomas) {
+        blocoSintomas.style.display = "block";
+        document.getElementById("textoSintomas").innerText = sintomas;
     } else {
-        divSintomas.style.display = "none";
+        blocoSintomas.style.display = "none";
     }
 
-    if (acao !== "") {
-        divAcao.style.display = "block";
-        document.getElementById('textoAcao').innerText = acao;
+    const blocoAcao = document.getElementById("alertaAcao");
+    if (acao) {
+        blocoAcao.style.display = "block";
+        document.getElementById("textoAcao").innerText = acao;
     } else {
-        divAcao.style.display = "none";
+        blocoAcao.style.display = "none";
     }
 
-    // LÓGICA PARA EXIBIR BOTÕES DE EMERGÊNCIA APENAS SE FOR PERIGO
-    if (classeEstilo === "perigo" && divBotoesEmergencia) {
-        divBotoesEmergencia.style.display = "flex";
-    } else if (divBotoesEmergencia) {
-        divBotoesEmergencia.style.display = "none";
-    }
+    const botoesEmergencia = document.getElementById("botoesEmergencia");
+    botoesEmergencia.style.display = tipo === "perigo" ? "flex" : "none";
 
-    quadro.className = `resultado-card ${classeEstilo}`;
-    document.getElementById('resultadoIcone').innerText = icone;
-    document.getElementById('statusTitulo').innerText = titulo;
-    document.getElementById('statusDescricao').innerText = descricao;
-
-    const listaEpis = document.getElementById('listaEpis');
+    const blocoEpis = document.getElementById("blocoEpis");
+    const listaEpis = document.getElementById("listaEpis");
     listaEpis.innerHTML = "";
     if (epis.length > 0) {
-        document.getElementById('blocoEpis').style.display = "block";
+        blocoEpis.style.display = "block";
         epis.forEach(epi => {
-            const span = document.createElement('span');
-            span.className = "epi-item";
-            span.innerHTML = `🛡️ ${epi}`;
-            listaEpis.appendChild(span);
+            listaEpis.innerHTML += `<span class="epi-item">🛡️ ${epi}</span>`;
         });
     } else {
-        document.getElementById('blocoEpis').style.display = "none";
+        blocoEpis.style.display = "none";
     }
+
+    const visivel = tipo !== "estado-espera";
+    document.getElementById("btnOuvir").style.display = visivel ? "inline-block" : "none";
+    document.getElementById("btnCopiar").style.display = visivel ? "inline-block" : "none";
+    document.getElementById("btnRelatorio").style.display = visivel ? "inline-block" : "none";
 }
 
-function prepararTexto(titulo, descricao) {
-    textoUltimoAlerta = `${titulo}. ... Análise técnica do sistema: ... ${descricao}`;
+function adicionarAoHistorico(prodA, prodB, tipo, titulo) {
+    const lista = document.getElementById("listaHistorico");
+    const vazio = lista.querySelector(".historico-vazio");
+    if (vazio) vazio.remove();
+
+    const timestamp = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    const itemHtml = `<div class="historico-item p-${tipo}"><strong>[${timestamp}]</strong> ${prodA} + ${prodB} <br><small>${titulo}</small></div>`;
+    lista.insertAdjacentHTML("afterbegin", itemHtml);
+
+    historicoTestes.push(`[${timestamp}] ${prodA} + ${prodB} -> ${titulo}`);
 }
 
-function lerAnalise() {
-    if (textoUltimoAlerta) { falarTexto(textoUltimoAlerta); }
+function resetarSimulador() {
+    document.getElementById("produtoA").value = "";
+    document.getElementById("produtoB").value = "";
+    calcularMistura();
 }
 
 function copiarResumo() {
-    if(laudoAtual) {
-        navigator.clipboard.writeText(laudoAtual).then(() => {
-            alert("✅ Laudo químico copiado com sucesso!");
-        });
-    }
+    if (!laudoAtual) return;
+    navigator.clipboard.writeText(laudoAtual).then(() => {
+        alert("Laudo químico copiado para a área de transferência!");
+    });
+}
+
+function lerAnalise() {
+    if (!textoUltimoAlerta) return;
+    window.speechSynthesis.cancel();
+    const voz = new SpeechSynthesisUtterance(textoUltimoAlerta);
+    voz.lang = "pt-BR";
+    window.speechSynthesis.speak(voz);
 }
 
 function exportarDados() {
     if (historicoTestes.length === 0) {
-        alert("⚠️ Faça pelo menos uma simulação antes de exportar o diário.");
+        alert("O diário de testes está vazio.");
         return;
     }
-    
-    let conteudo = "--- DIÁRIO DE TESTES: LIMPAPP ---\n\n";
-    historicoTestes.forEach((teste, index) => {
-        conteudo += `Teste #${index + 1}\n`;
-        conteudo += `Reagentes: ${teste.p1} + ${teste.p2}\n`;
-        conteudo += `Resultado: ${teste.resultado}\n`;
-        conteudo += `Data/Hora: ${teste.hora}\n\n`;
-    });
-
-    const blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
+    const txtContent = "=== DIÁRIO DE TESTES QUÍMICOS - LIMPAPP ===\n\n" + historicoTestes.join("\n");
+    const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
-    link.href = url;
-    link.download = "Diario_LimpApp.txt"; 
+    link.href = URL.createObjectURL(blob);
+    link.download = `limpapp_historico_${new Date().toISOString().slice(0,10)}.txt`;
     link.click();
-    URL.revokeObjectURL(url);
-}
-
-function resetarSimulador() {
-    document.getElementById('produtoA').value = "";
-    document.getElementById('produtoB').value = "";
-    textoUltimoAlerta = "";
-    laudoAtual = "";
-    window.speechSynthesis.cancel();
-    atualizarInterface("estado-espera", "🔬", "Aguardando Parâmetros", "Insira os dois compostos químicos no painel acima para iniciar o mapeamento molecular de riscos e reações.", []);
-}
-
-function adicionarAoHistorico(prod1, prod2, tipo, titulo) {
-    const agora = new Date().toLocaleTimeString();
-    historicoTestes.push({ p1: prod1, p2: prod2, resultado: titulo, hora: agora });
-
-    const lista = document.getElementById('listaHistorico');
-    const vazio = lista.querySelector('.historico-vazio');
-    if (vazio) vazio.remove();
-    
-    const item = document.createElement('div');
-    item.className = `historico-item p-${tipo}`;
-    item.innerHTML = `<strong>${prod1}</strong> + <strong>${prod2}</strong>`;
-    lista.insertBefore(item, lista.firstChild);
-    if (lista.children.length > 5) { lista.removeChild(lista.lastChild); }
 }
